@@ -14,17 +14,20 @@
             background-color: #E0E0E0;
             margin: 0;
         }
+
+        .main{
+            display: flex;
+        }
         
-        .bsp{
+        .seitenleiste{
             flex-direction: column;
             padding-top: 100px;
             background-color: #2461a6;
             width: 20%;
             height: 400px;
-            
         }
         
-        .bsp a{
+        .seitenleiste a{
             display: flex;
             text-decoration: none;
             color: rgb(200, 200, 200);
@@ -34,9 +37,10 @@
             gap: 8px;
             margin: 0;
         }
-        .bsp a:hover{
+        .seitenleiste a:hover{
             background-color: rgb(200, 200, 200, 0.1);
         }
+        
         
         .phpBlock{
             background-color: #FFFFFF;
@@ -55,14 +59,14 @@
         }
         .phpBlock p{
             font-size: 14px;
-            
+        }
+        .phpBlock j{
+            font-size: 30px;
+            color: gray;
         }
         
-        .main{
-            display: flex;
-            
-        }
-        .Bar{
+        
+        .MenuBar{
             position: absolute;
             left: 0;
             right: 0;
@@ -70,14 +74,15 @@
             background-color: white;
             display: flex;
             align-items: center;
-            
+            box-shadow: black inset 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+
         }
-        .Bar h1{
+        .MenuBar h1{
             margin-left: 20px;
             margin-right: 60px;
             color: black;
         }
-        .Bar a{
+        .MenuBar a{
             padding: 20px;
             display: flex;
             margin: 0;
@@ -86,7 +91,7 @@
             gap: 8px;
             
         }
-        .Bar a:hover{
+        .MenuBar a:hover{
             background-color: rgb(200, 200, 200, 0.1)
         }
 
@@ -94,14 +99,21 @@
             display: inline-block;
         }
         .Kontakte{
-           
+           background-color: lightgrey;
+           position: relative;
+        }
+        .profPic{
+            position: absolute;
+            left: 4px;
+            top: 6px;
+            
         }
         .person{
             position: relative;
             margin-bottom: 8px;
-            background-color: lightgrey;
             padding-top: 10px;
             padding-bottom: 10px;
+            left: 60px;
         }
         .anrufen{
             position: absolute;
@@ -138,24 +150,23 @@
 </head>
 <body>
     <div class="main">
-        <div class="bsp">
-            <a href="index.php?page=start"><img src="img/home.png"> Startseite</a>
-            <a href="index.php?page=contacts"><img src="img/mail.png"> Kontakte hinzufügen</a>
-            <a href="index.php?page=showContacts"><img src="img/mail.png"> Kontakte anzeigen</a>
+        <div class="seitenleiste">
+            <a href="index.php?page=start"><img src="img/home.svg"> Startseite</a>
+            <a href="index.php?page=contacts"><img src="img/add.svg"> Kontakte hinzufügen</a>
+            <a href="index.php?page=showContacts"><img src="img/mail.svg"> Kontakte anzeigen</a>
         </div>
 
         <div class="phpBlock">
             <?php
                 $contacts = [];
                 
-                if (file_exists('contacts.txt')) {
+            if (file_exists('contacts.txt')) {
                     $text = file_get_contents('contacts.txt', true);
                     $contacts = json_decode($text, true);
                     if (!is_array($contacts)) {
                         $contacts = []; // leeres Array, wenn Datei leer oder ungültig
                     }
             }
-
 
             if (isset($_POST['name']) && isset($_POST['phone'])) {
                 echo 'Kontakt <b>' . $_POST['name'] . '</b> wurde hinzugefügt';
@@ -166,62 +177,65 @@
                 array_push($contacts, $newContact);
                 file_put_contents('contacts.txt', json_encode($contacts, JSON_PRETTY_PRINT));
             }
-                $headline = "Herzlich willkommen";
-                
-                if($_GET["page"] == "contactDeleted") {
-                    $id = $_GET["id"];
-                    $text = file_get_contents('contacts.txt', true);
-                    $contacts = json_decode($text, true);
-                    foreach ($contacts as $key => $contact) {
-                        if($contact["name"] == $id){
-                            unset($contacts[$key]);
-                            break;
-                        }
+
+            $headline = "Herzlich willkommen";
+
+            if($_GET["page"] == "start"){
+                $currentSitename = "Startseite";
+                echo "<h1>" . $headline ." in ". $currentSitename . "</h1>";
+                echo "<j>Zurzeit sind " . count($contacts) . " Kontakte im Kontaktbuch gespeichert.</j>";
+            }
+            
+            elseif($_GET["page"] == "contacts"){
+                $currentSitename = "Contacts";
+                echo "<h1>" . $headline ." in ". $currentSitename . "</h1>";
+                echo " 
+                <form action='?page=contacts' method='post'>
+                    <div class='Knt'>
+                        <p>Kontakt hinzufügen:</p>
+                        <p><input placeholder='Name eingeben' name='name'></p>
+                        <p><input placeholder='Telefonnummer eingeben' name='phone'></p>
+                        <p><button type='submit'>Kontakt hinzufügen</button></p>
+                    </div>
+                </form>";
+            }
+            elseif($_GET["page"] == "showContacts"){
+                if($_GET["id"] != null){
+                $id = $_GET["id"];
+                $text = file_get_contents('contacts.txt', true);
+                $contacts = json_decode($text, true);
+                foreach ($contacts as $key => $contact) {
+                    if($contact["name"] == $id){
+                        unset($contacts[$key]);
+                        break;
                     }
-                    $contacts = array_values($contacts);
-                    file_put_contents('contacts.txt', json_encode($contacts, JSON_PRETTY_PRINT));
-                    echo "Kontakt gelöscht: " . $id;
                 }
-                if($_GET["page"] == "start"){
-                    $currentSitename = "Startseite";
-                    echo "<h1>" . $headline ." in ". $currentSitename . "</h1>";
-                    echo "<p>Folgende Kontakte sind online:</p>
-                    <ul>
-                        <li>Max Mustermann</li>
-                        <li>Erika Musterfrau</li>
-                        <li>John Doe</li>
-                        <li>Jane Doe</li>
-                    </ul>";
+                $contacts = array_values($contacts);
+                file_put_contents('contacts.txt', json_encode($contacts, JSON_PRETTY_PRINT));
+
+                echo "Kontakt gelöscht: " . $id;
                 }
-                
-                elseif($_GET["page"] == "contacts"){
-                    $currentSitename = "Contacts";
-                    echo "<h1>" . $headline ." in ". $currentSitename . "</h1>";
-                    echo " 
-                    <form action='?page=contacts' method='post'>
-                        <div class='Knt'>
-                            <p>Kontakt hinzufügen:</p>
-                            <p><input placeholder='Name eingeben' name='name'></p>
-                            <p><input placeholder='Telefonnummer eingeben' name='phone'></p>
-                            <p><button type='submit'>Kontakt hinzufügen</button></p>
-                        </div>
-                    </form>";
-            }elseif($_GET["page"] == "showContacts"){
                 echo "<h1>Hier werden deine Kontakte angezeigt</h1>";
-                echo "<div class='Kontakte'>";
                 foreach($contacts as $contact){
-                    echo "<div class='person'>
-                            <b><u>" . $contact["name"] . "</u></b><br>".
-                            $contact["phone"] . 
+                    echo"<div class='Kontakte'>";
+                        echo"<div class='profPic'>
+                                <img src='img/pp.svg' alt='Profilbild' width='50' height='50'>
+                            </div>". 
+                            "<div class='person'>
+                                <b>
+                                    <u>" . $contact["name"] . "</u>
+                                </b>
+                                <br>".
+                                $contact["phone"] . 
+                            "</div>".
                             "<div class='anrufen'> 
                                 <a href='tel:anrufen'> Anrufen </a>
                             </div>".
                             "<div class='löschen'> 
-                                <a href='index.php?page=contactDeleted&id=".$contact["name"]."'> Löschen </a>
-                            </div>".
-                         "</div>";
+                                <a href='index.php?page=showContacts&id=".$contact["name"]."'> Löschen </a>
+                            </div>";
+                    echo"</div>";
                 }
-                echo "</div>";
             }
             
 
@@ -231,10 +245,10 @@
     </div>
  
 
-    <div class="Bar">
+    <div class="MenuBar">
         <h1>Kontaktbuch</h1>
-        <a href="myFirstCode.php?page=impressum">Suche</a>
-        <a href="index.php?page=contacts">2_Suchelement</a>
+        <a href="myFirstCode.php?page=impressum">Impressum</a>
+        <a href="">Template</a>
     </div>
 </body>
 </html>
