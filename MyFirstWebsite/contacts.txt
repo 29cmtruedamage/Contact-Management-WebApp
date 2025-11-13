@@ -1,6 +1,6 @@
 [
     {
-        "name": "Corny",
-        "phone": "+49 1577 7969754"
+        "name": "Frederick",
+        "phone": "01288 999999"
     }
 ]
